@@ -2,8 +2,8 @@ using FlightSearch.DTOs.InModels;
 using FlightSearch.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using FlightSearch.Mappers;
-using FlightSearch.DTOs.OutModels;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+using FlightSearch.Enums;
+using FlightSearch.Helpers;
 
 namespace FlightSearch.Controllers
 {
@@ -32,67 +32,66 @@ namespace FlightSearch.Controllers
             {
                 return NotFound();
             }
-            var dateToday = DateOnly.FromDateTime(DateTime.Now);
             var publicHolidays = country.ToOutCountryDTO().PublicHolidays;
-            var listOfDatePairs = new List<OutDatePairsDTO>();
-            foreach (DateOnly publicHolidayDate in publicHolidays)
-            {
-                for(int i = 0; i < inDatePairsDTO.TotalDays; i++)
-                {
-                    DateOnly startingDate = publicHolidayDate.AddDays(-i);
-                    DateOnly endDate = startingDate.AddDays(inDatePairsDTO.TotalDays - 1);
-                    if (startingDate.CompareTo(dateToday) <= 0)
-                    {
-                        break;
-                    }
-                    int publicHolidayAndWeekendCount = 0;
-                    DateOnly currentDate = startingDate;
-                    List<DateOnly> publicHolidaysInRange = new List<DateOnly>();
-                    List<DateOnly> weekendsInRange = new List<DateOnly>();
-                    List<DateOnly> daysOffInRange = new List<DateOnly>();
-                    while (currentDate.CompareTo(endDate) <= 0)
-                    {
-                        if (currentDate.DayOfWeek == DayOfWeek.Saturday || currentDate.DayOfWeek == DayOfWeek.Sunday || publicHolidays.Contains(currentDate))
-                        {
-                            publicHolidayAndWeekendCount++;
-                            if (publicHolidays.Contains(currentDate))
-                            {
-                                publicHolidaysInRange.Add(currentDate);
-                            }
-                            else
-                            {
-                                weekendsInRange.Add(currentDate);
-                            }
-                        }
-                        else
-                        {
-                            daysOffInRange.Add(currentDate);
-                        }
-                        currentDate = currentDate.AddDays(1);
-                    }
-                    if (inDatePairsDTO.TotalDays <= inDatePairsDTO.DaysOff + publicHolidayAndWeekendCount)
-                    {
-                        if (listOfDatePairs.Where(datePair => datePair.StartDate.Equals(startingDate)).ToList().Count == 0)
-                        {
-                            listOfDatePairs.Add(new OutDatePairsDTO()
-                            {
-                                StartDate = startingDate,
-                                EndDate = endDate,
-                                PublicHolidays = publicHolidaysInRange,
-                                Weekends = weekendsInRange,
-                                DaysOff = daysOffInRange
-                            });
-                        }
-                    }
-                }
-            }
-            listOfDatePairs.Sort((x, y) => x.StartDate.CompareTo(y.StartDate));
+            var listOfDatePairs = PublicHolidayMapper.HolidaysToDatePairs(publicHolidays, inDatePairsDTO);
             return Ok(listOfDatePairs);
         }
 
         [HttpGet("search")]
         public async Task<IActionResult> searchFlights([FromQuery] InFlightSearchDTO inFlightSearchDTO)
         {
+            if (!inFlightSearchDTO.MulticityRightfullyDefined())
+            {
+                return BadRequest("Multicity not defined rightfully");
+            }
+            switch(inFlightSearchDTO.FlightSearchType)
+            {
+                case (FlightSearchType.ExactDate):
+                {
+                    if (!DateHelper.IsDateWithinYear(inFlightSearchDTO.DepartureDay))
+                    {
+                        return BadRequest("Departure date not within a year");
+                    }
+                    if (!inFlightSearchDTO.OneWay && !DateHelper.IsDateWithinYear(inFlightSearchDTO.ReturnDay))
+                    {
+                        return BadRequest("Return date not within a year");
+                    }
+                    if (!inFlightSearchDTO.OneWay && inFlightSearchDTO.DepartureDay >= inFlightSearchDTO.ReturnDay)
+                    {
+                        return BadRequest("Departure date before return date");
+                    }
+                    if (inFlightSearchDTO.MulticityDefined() && !DateHelper.IsDateWithinYear(inFlightSearchDTO.ReturnDay))
+                    {
+                        return BadRequest("Return date for multicity search required");
+                    }
+                    break;
+                }
+                case (FlightSearchType.MonthDirectFlight):
+                case (FlightSearchType.DuratinInMonth):
+                case (FlightSearchType.LongWeekendInMonth):
+                case (FlightSearchType.DoubleLongWeekendInMonth):
+                {
+                    if (inFlightSearchDTO.FlightSearchType != FlightSearchType.MonthDirectFlight && inFlightSearchDTO.Month == null || inFlightSearchDTO.Month < 1 || inFlightSearchDTO.Month > 12 || inFlightSearchDTO.Year == null)
+                    {
+                        return BadRequest("Month and date are not valid");
+                    }
+                    if (inFlightSearchDTO.FlightSearchType == FlightSearchType.DuratinInMonth && (inFlightSearchDTO.TripDuration == null || inFlightSearchDTO.TripDuration < 1 || inFlightSearchDTO.TripDuration > 21))
+                    {
+                        return BadRequest("You need to provide trip duration(within 3 weeks)");
+                    }
+                    var today = DateHelper.Today();
+                    var firstDayOfMonth = new DateOnly(inFlightSearchDTO.Year.GetValueOrDefault(), inFlightSearchDTO.Month.GetValueOrDefault(), inFlightSearchDTO.Year == today.Year && inFlightSearchDTO.Month == today.Month ? today.Day : 1); 
+                    if (!DateHelper.IsDateWithinYear(firstDayOfMonth))
+                    {
+                        return BadRequest("First day of the month not within a year");
+                    }
+                    break;
+                }
+                default:
+                {
+                    return BadRequest("Bad FlightSearchType");
+                }
+            }
             var requests = inFlightSearchDTO.ToAmadeusFLightSearchDTOs();
             var returnData = await _flightRepository.GetFlightData(requests);
             return Ok(returnData);
