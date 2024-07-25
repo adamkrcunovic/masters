@@ -17,7 +17,7 @@ namespace FlightSearch.Mappers
                 {
                     case FlightSearchType.ExactDate:
                     {
-                        if (inFlightSearchDTO.MultiCity1 == null || inFlightSearchDTO.MultiCity1.Length == 0)
+                        if (!inFlightSearchDTO.MulticityDefined())
                         {
                             requestsList.Add(FromDatePairToAmadeusFlightSearch(inFlightSearchDTO, inFlightSearchDTO.DepartureDay.GetValueOrDefault(), inFlightSearchDTO.ReturnDay));
                         }
@@ -145,7 +145,18 @@ namespace FlightSearch.Mappers
             };
         }
 
-        public static List<OutFlightDealDTO?> FlightResponseToFlightDeals (this List<OutAmadeusFlightDataDTO?>? outAmadeusFlightDataDTOs)
+        public static OutFlightDTO ToFinalFlightData(this List<OutFlightDealDTO?> flightDeals)
+        {
+            flightDeals.RemoveAll(item => item == null);
+            return new OutFlightDTO{
+                CheapestFlights = flightDeals.OrderBy(flightDeal => flightDeal?.TotalPrice).Take(10).ToList(),
+                FastestFlights = flightDeals.OrderBy(flightDeal => flightDeal?.ReturnTotalFlightsDurationInMinutes()).ThenBy(flightDeal => flightDeal?.TotalPrice).Take(10).ToList(),
+                LongestStayFlights = flightDeals.Where(flightDeals => flightDeals?.FromDuration != null).OrderByDescending(flightDeal => flightDeal?.ReturnTotalStayDurationInMinutes()).Take(10).ToList(),
+                CityVisit = flightDeals.Where(flightDeals => flightDeals?.CityVisit.Count > 0).OrderByDescending(flightDeal => flightDeal?.CityVisit.Count).ThenBy(flightDeal => flightDeal?.TotalPrice).Take(10).ToList(),
+            };
+        }
+
+        public static List<OutFlightDealDTO?> FlightResponseToFlightDeals (this List<OutAmadeusFlightDataDTO> outAmadeusFlightDataDTOs)
         {
             var returnList = new List<OutFlightDealDTO?>();
             if (outAmadeusFlightDataDTOs != null)
@@ -154,15 +165,18 @@ namespace FlightSearch.Mappers
                 {
                     if (amadeusData != null)
                     {
-                    returnList.Add(new OutFlightDealDTO() {
-                        ToDuration = DateHelper.RenameHourString(amadeusData.Itineraries[0].Duration),
-                        ToSegments = amadeusData.Itineraries[0].Segments.OutAmadeusSegmentToOutFlightSegment(),
-                        LayoverToDuration = amadeusData.Itineraries[0].Segments.OutAmadeusSegmentToLayouvers(),
-                        FromDuration = amadeusData.Itineraries.Count == 2 ? DateHelper.RenameHourString(amadeusData.Itineraries[1].Duration) : null,
-                        FromSegments = amadeusData.Itineraries.Count == 2 ? amadeusData.Itineraries[1].Segments.OutAmadeusSegmentToOutFlightSegment() : null,
-                        LayoverFromDuration = amadeusData.Itineraries.Count == 2 ? amadeusData.Itineraries[1].Segments.OutAmadeusSegmentToLayouvers() : null,
-                        TotalPrice = Double.Parse(amadeusData.Price.Total)
-                    });
+                        var flightData = new OutFlightDealDTO() {
+                            ToDuration = DateHelper.RenameHourString(amadeusData.Itineraries[0].Duration),
+                            ToSegments = amadeusData.Itineraries[0].Segments.OutAmadeusSegmentToOutFlightSegment(),
+                            LayoverToDuration = amadeusData.Itineraries[0].Segments.OutAmadeusSegmentToLayovers(),
+                            CityVisit = amadeusData.Itineraries[0].Segments.OutAmadeusSegmentToLayoversCityVisit().Concat(amadeusData.Itineraries.Count == 2 ? amadeusData.Itineraries[1].Segments.OutAmadeusSegmentToLayoversCityVisit() : new List<string>()).ToList(),
+                            FromDuration = amadeusData.Itineraries.Count == 2 ? DateHelper.RenameHourString(amadeusData.Itineraries[1].Duration) : null,
+                            FromSegments = amadeusData.Itineraries.Count == 2 ? amadeusData.Itineraries[1].Segments.OutAmadeusSegmentToOutFlightSegment() : null,
+                            LayoverFromDuration = amadeusData.Itineraries.Count == 2 ? amadeusData.Itineraries[1].Segments.OutAmadeusSegmentToLayovers() : null,
+                            TotalPrice = Double.Parse(amadeusData.Price.Total)
+                        };
+                        flightData.SetFlightAndStayDuration();
+                        returnList.Add(flightData);
                     }
                     else
                     {
@@ -190,17 +204,73 @@ namespace FlightSearch.Mappers
             return returnList;
         }
 
-        public static List<string> OutAmadeusSegmentToLayouvers (this List<OutAmadeusFlightSegmentDTO> outAmadeusFlightSegmentDTOs)
+        public static List<string> OutAmadeusSegmentToLayovers (this List<OutAmadeusFlightSegmentDTO> outAmadeusFlightSegmentDTOs)
         {
             var returnList = new List<string>();
             for (var i = 1; i < outAmadeusFlightSegmentDTOs.Count; i++)
             {
-                TimeSpan dateDiff = outAmadeusFlightSegmentDTOs[i].Departure.At - outAmadeusFlightSegmentDTOs[i - 1].Arrival.At;
-                var hours = dateDiff.Hours;
-                var minutes = dateDiff.Minutes % 60;
-                returnList.Add((hours > 0 ? (hours > 1 ? hours + "Hours " : "1Hour ") : "") + (minutes > 0 ? minutes + "Minutes" : ""));
+                returnList.Add(DateHelper.LayoverStringInFormat(outAmadeusFlightSegmentDTOs[i].Departure.At, outAmadeusFlightSegmentDTOs[i - 1].Arrival.At));
             }
             return returnList;
+        }
+
+        public static List<String> OutAmadeusSegmentToLayoversCityVisit (this List<OutAmadeusFlightSegmentDTO> outAmadeusFlightSegmentDTOs)
+        {
+            var returnList = new List<String>();
+            for (var i = 1; i < outAmadeusFlightSegmentDTOs.Count; i++)
+            {
+                if (DateHelper.MinutesDifference(outAmadeusFlightSegmentDTOs[i].Departure.At, outAmadeusFlightSegmentDTOs[i - 1].Arrival.At) > 1440)
+                returnList.Add(outAmadeusFlightSegmentDTOs[i].Departure.IataCode);
+            }
+            return returnList;
+        }
+
+        public static OutAmadeusFlightSearchDTO? MergeTwoMulticityItineraries(OutAmadeusFlightSearchDTO? data1, OutAmadeusFlightSearchDTO? data2)
+        {
+            if (data1 != null && data2 != null)
+            {
+                data1.Data = data1.Data.OrderBy(data => data.Price.Total).ToList();
+                data2.Data = data2.Data.OrderBy(data => data.Price.Total).ToList();
+                var numberOfItineraries = data1.Data.Count;
+                var outAmadeusFlightSearchDTO = new OutAmadeusFlightSearchDTO();
+                for(int i = 0; i < data1.Data.Count; i++)
+                {
+                    for(int j = 0; j < data2.Data.Count; j++)
+                    {
+                        outAmadeusFlightSearchDTO.Data.Add(new OutAmadeusFlightDataDTO{
+                            Itineraries = new List<OutAmadeusFlightItineraryDTO>{
+                                data1.Data[i].Itineraries[0],
+                                data2.Data[j].Itineraries[0]
+                            },
+                            Price = new OutAmadeusFlightPriceDTO(){
+                                Currency = data1.Data[i].Price.Currency,
+                                Total = (Convert.ToDouble(data1.Data[i].Price.Total) + Convert.ToDouble(data2.Data[j].Price.Total)).ToString(),
+                                Base = (Convert.ToDouble(data1.Data[i].Price.Base) + Convert.ToDouble(data2.Data[j].Price.Base)).ToString(),
+                                GrandTotal = (Convert.ToDouble(data1.Data[i].Price.GrandTotal) + Convert.ToDouble(data2.Data[j].Price.GrandTotal)).ToString(),
+                            }
+                        });
+                    }
+                }
+                outAmadeusFlightSearchDTO.Data = outAmadeusFlightSearchDTO.Data.OrderBy(data => Convert.ToDouble(data.Price.Total)).Take(numberOfItineraries * 2).ToList();
+                return outAmadeusFlightSearchDTO;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static List<OutAmadeusFlightSearchDTO?>? ShortenResponsesIntoOne(List<OutAmadeusFlightSearchDTO?> responsesList, bool multiCity)
+        {
+            List<OutAmadeusFlightSearchDTO?> newResponseList = new ();
+            if (multiCity)
+            {
+                for(int i = 0; i < responsesList.Count/2; i++)
+                {
+                    newResponseList.Add(FlightMapper.MergeTwoMulticityItineraries(responsesList[2*i], responsesList[2*i + 1]));
+                }
+            }
+            return multiCity ? newResponseList : responsesList;
         }
 
     }

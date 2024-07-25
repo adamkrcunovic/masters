@@ -7,5 +7,6 @@ namespace FlightSearch.DTOs.ThirdPartyModels.OutModels
         public string CarrierCode { get; set; } = string.Empty;
         public string Number { get; set; } = string.Empty;
         public string Duration { get; set; } = string.Empty;
+        public List<String>? CityVisit { get; set; }
     }
 }

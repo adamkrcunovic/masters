@@ -52,11 +52,11 @@ namespace FlightSearch.Controllers
                     {
                         return BadRequest("Departure date not within a year");
                     }
-                    if (!inFlightSearchDTO.OneWay && !DateHelper.IsDateWithinYear(inFlightSearchDTO.ReturnDay))
+                    if (inFlightSearchDTO.ReturnDay != null && !DateHelper.IsDateWithinYear(inFlightSearchDTO.ReturnDay))
                     {
                         return BadRequest("Return date not within a year");
                     }
-                    if (!inFlightSearchDTO.OneWay && inFlightSearchDTO.DepartureDay >= inFlightSearchDTO.ReturnDay)
+                    if (inFlightSearchDTO.ReturnDay != null && inFlightSearchDTO.DepartureDay >= inFlightSearchDTO.ReturnDay)
                     {
                         return BadRequest("Departure date before return date");
                     }
@@ -93,8 +93,8 @@ namespace FlightSearch.Controllers
                 }
             }
             var requests = inFlightSearchDTO.ToAmadeusFLightSearchDTOs();
-            var returnData = await _flightRepository.GetFlightData(requests);
-            return Ok(returnData);
+            var returnData = await _flightRepository.GetFlightData(requests, inFlightSearchDTO.MulticityDefined());
+            return Ok(returnData.ToFinalFlightData());
         }
 
     }

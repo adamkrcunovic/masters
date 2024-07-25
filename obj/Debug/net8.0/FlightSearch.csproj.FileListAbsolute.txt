@@ -104,3 +104,12 @@
 /Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/zh-Hans/Microsoft.CodeAnalysis.Workspaces.resources.dll
 /Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/zh-Hant/Microsoft.CodeAnalysis.Workspaces.resources.dll
 /Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/obj/Debug/net8.0/FlightSearch.sourcelink.json
+/Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
+/Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+/Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Microsoft.IdentityModel.Abstractions.dll
+/Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Microsoft.IdentityModel.JsonWebTokens.dll
+/Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Microsoft.IdentityModel.Logging.dll
+/Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.dll
+/Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+/Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Microsoft.IdentityModel.Tokens.dll
+/Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/System.IdentityModel.Tokens.Jwt.dll

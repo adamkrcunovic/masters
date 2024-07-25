@@ -1,9 +1,10 @@
 using FlightSearch.Database.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace FlightSearch.Database
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<User>
     {
         public DbSet<Country> Countries { get; set; }
         public DbSet<PublicHoliday> PublicHolidays { get; set; }

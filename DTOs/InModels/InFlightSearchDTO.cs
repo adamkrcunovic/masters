@@ -10,7 +10,7 @@ namespace FlightSearch.DTOs.InModels
         public DateOnly? DepartureDay { get; set; }
         public DateOnly? ReturnDay { get; set; }
         [Required]
-        [Range(1, 10)]
+        [Range(1, 9)]
         public int Adults { get; set; }
         public int? Month { get; set; }
         public int? Year { get; set; }
@@ -21,8 +21,6 @@ namespace FlightSearch.DTOs.InModels
         public string? MultiCity2 { get; set; }
         [Required]
         public string ToAirport { get; set; } = string.Empty;
-        [Required]
-        public bool OneWay { get; set; } = false;
         public bool? MixMultiCity { get; set; }
         public bool FlyTheNightBefore { get; set; } = false;
     

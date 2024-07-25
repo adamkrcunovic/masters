@@ -25,7 +25,7 @@ namespace FlightSearch.Repositories
             _memoryCache = memoryCache;
         }
 
-        public async Task<List<OutFlightDealDTO?>> GetFlightData(List<InAmadeusFlightSearchDTO> inAmadeusFlightSearchDTOs)
+        public async Task<List<OutFlightDealDTO?>> GetFlightData(List<InAmadeusFlightSearchDTO> inAmadeusFlightSearchDTOs, Boolean multiCity)
         {
             var taskList = new List<Task<OutAmadeusFlightSearchDTO?>>();
             var lastInAmadeusFlightSearchDTO = inAmadeusFlightSearchDTOs.Last();
@@ -44,7 +44,18 @@ namespace FlightSearch.Repositories
             }
             var responsesArray = await Task.WhenAll(taskList);
             var responsesList = responsesArray.ToList();
-            return responsesList[0].Data.FlightResponseToFlightDeals();
+            responsesList = FlightMapper.ShortenResponsesIntoOne(responsesList, multiCity);
+            OutAmadeusFlightSearchDTO finalData = new();
+            if (responsesList != null)
+            {
+                foreach(var response in responsesList) {
+                    if (response != null)
+                    {
+                        finalData.Data = finalData.Data.Concat(response.Data).ToList();
+                    }
+                }
+            }
+            return finalData.Data.FlightResponseToFlightDeals();
         }
 
         private async Task<OutAmadeusFlightSearchDTO?> CallAmadeusFlightApi(InAmadeusFlightSearchDTO inAmadeusFlightSearchDTO, string? token)
