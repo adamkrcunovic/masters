@@ -7,7 +7,7 @@ using FlightSearch.Helpers;
 
 namespace FlightSearch.Controllers
 {
-    [Route("api/Flights")]
+    [Route("api/flights")]
     [ApiController]
     public class FlightsController : ControllerBase
     {

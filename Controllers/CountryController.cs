@@ -2,6 +2,7 @@ using FlightSearch.DTOs.InModels;
 using FlightSearch.DTOs.OutModels;
 using FlightSearch.Interfaces;
 using FlightSearch.Mappers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlightSearch.Controllers

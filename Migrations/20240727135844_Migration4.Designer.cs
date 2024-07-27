@@ -4,6 +4,7 @@ using FlightSearch.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FlightSearch.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240727135844_Migration4")]
+    partial class Migration4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -124,32 +127,6 @@ namespace FlightSearch.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("FlightSearch.Database.Models.UserFriendRequest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("FriendsStatus")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId1")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("UserId2")
-                        .HasColumnType("varchar(255)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId1");
-
-                    b.HasIndex("UserId2");
-
-                    b.ToTable("UserFriendRequests");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -174,6 +151,14 @@ namespace FlightSearch.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "5f31bca2-8852-44a8-8565-1fb326220f4a",
+                            Name = "User",
+                            NormalizedName = "USER"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -291,21 +276,6 @@ namespace FlightSearch.Migrations
                     b.Navigation("Country");
                 });
 
-            modelBuilder.Entity("FlightSearch.Database.Models.UserFriendRequest", b =>
-                {
-                    b.HasOne("FlightSearch.Database.Models.User", "User1")
-                        .WithMany("SentFriendRequests")
-                        .HasForeignKey("UserId1");
-
-                    b.HasOne("FlightSearch.Database.Models.User", "User2")
-                        .WithMany("ReceivedFriendRequests")
-                        .HasForeignKey("UserId2");
-
-                    b.Navigation("User1");
-
-                    b.Navigation("User2");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -360,13 +330,6 @@ namespace FlightSearch.Migrations
             modelBuilder.Entity("FlightSearch.Database.Models.Country", b =>
                 {
                     b.Navigation("PublicHolidays");
-                });
-
-            modelBuilder.Entity("FlightSearch.Database.Models.User", b =>
-                {
-                    b.Navigation("ReceivedFriendRequests");
-
-                    b.Navigation("SentFriendRequests");
                 });
 #pragma warning restore 612, 618
         }
