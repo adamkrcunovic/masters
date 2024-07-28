@@ -1,6 +1,5 @@
 using FlightSearch.DTOs.InModels;
 using FlightSearch.Interfaces;
-using FlightSearch.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlightSearch.Controllers

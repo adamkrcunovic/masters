@@ -31,7 +31,23 @@ namespace FlightSearch.Database
                 .WithMany(user => user.ReceivedFriendRequests)
                 .HasForeignKey(friendRequest => friendRequest.UserId2);
 
-            /* List<IdentityRole> roles = new List<IdentityRole>
+            builder.Entity<User>()
+                .Property(user => user.Name)
+                .HasDefaultValue("Adam");
+
+            builder.Entity<User>()
+                .Property(user => user.LastName)
+                .HasDefaultValue("Krcunovic");
+
+            builder.Entity<User>()
+                .Property(user => user.Birthday)
+                .HasDefaultValue(DateOnly.Parse("1997-12-24"));
+
+            builder.Entity<User>()
+                .Property(user => user.CountryId)
+                .HasDefaultValue(1);
+
+            List<IdentityRole> roles = new List<IdentityRole>
             {
                 new IdentityRole{
                     Name = "User",
@@ -39,7 +55,7 @@ namespace FlightSearch.Database
                 }
             };
 
-            builder.Entity<IdentityRole>().HasData(roles); */
+            builder.Entity<IdentityRole>().HasData(roles);
         }
     }
 }

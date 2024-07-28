@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using FlightSearch.Mappers;
 using FlightSearch.Enums;
 using FlightSearch.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FlightSearch.Controllers
 {
@@ -20,14 +21,16 @@ namespace FlightSearch.Controllers
             _flightRepository = flightRepository;
         }
 
-        [HttpGet("getTravelPairs/{id}")]
-        public async Task<IActionResult> GetTravelDatePairs([FromRoute] int id, [FromQuery] InDatePairsDTO inDatePairsDTO)
+        [HttpGet("getTravelPairs")]
+        [Authorize]
+        public async Task<IActionResult> GetTravelDatePairs([FromQuery] InDatePairsDTO inDatePairsDTO)
         {
             if (inDatePairsDTO.TotalDays < inDatePairsDTO.DaysOff)
             {
                 return BadRequest();
             }
-            var country = await _countryRepository.GetCountryById(id);
+            var countryId = await TokenHelper.GetCountryIdFromHttpContext(HttpContext);
+            var country = await _countryRepository.GetCountryById(countryId);
             if (country == null)
             {
                 return NotFound();

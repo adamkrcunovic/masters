@@ -86,6 +86,7 @@ builder.Services.AddHttpClient<IFlightRepository, FlightRepository>();
 builder.Services.AddScoped<ICountryRepository, CountryRepository>();
 builder.Services.AddScoped<IPublicHolidayRepository, PublicHolidayRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IFriendRepository, FriendRepository>();
 
 builder.Services.AddMemoryCache();
 
