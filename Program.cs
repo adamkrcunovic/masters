@@ -82,6 +82,7 @@ builder.Services.AddAuthentication(option => {
 }); 
 
 builder.Services.AddHttpClient<IFlightRepository, FlightRepository>();
+builder.Services.AddHttpClient<ITripRepository, TripRepository>();
 
 builder.Services.AddScoped<ICountryRepository, CountryRepository>();
 builder.Services.AddScoped<IPublicHolidayRepository, PublicHolidayRepository>();

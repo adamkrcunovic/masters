@@ -41,7 +41,7 @@ namespace FlightSearch.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> searchFlights([FromQuery] InFlightSearchDTO inFlightSearchDTO)
+        public async Task<IActionResult> SearchFlights([FromQuery] InFlightSearchDTO inFlightSearchDTO)
         {
             if (!inFlightSearchDTO.MulticityRightfullyDefined())
             {
@@ -99,6 +99,11 @@ namespace FlightSearch.Controllers
             var returnData = await _flightRepository.GetFlightData(requests, inFlightSearchDTO.MulticityDefined());
             return Ok(returnData.ToFinalFlightData());
         }
+
+        /* [HttpPut("saveItinerary")]
+        public async Task<IActionResult> SaveItinerary([FromBody] InFlightSearchDTO inFlightSearchDTO)
+        {
+        } */
 
     }
 }

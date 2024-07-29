@@ -5,6 +5,8 @@ namespace FlightSearch.Constants
         public const string DateOnlyPattern = "yyyy-MM-dd";
         public const string TokenCacheString = "token";
         public const string TokenAmadeusApiAddress = "https://test.api.amadeus.com/v1/security/oauth2/token";
+        public const string OpenAIApiAddress = "https://api.openai.com/v1/chat/completions";
+        
         public const string FlightOffersAmadeusApiAddress = "https://test.api.amadeus.com/v2/shopping/flight-offers?";
     }
 }

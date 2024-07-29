@@ -26,7 +26,7 @@ namespace FlightSearch.Helpers
             {
                 returnString = returnString.Insert(MIndex + 1, "inutes");
             }
-            return returnString;
+            return returnString.Trim();
         }
 
         public static string LayoverStringInFormat(DateTime dateTime1, DateTime dateTime2)
@@ -34,14 +34,14 @@ namespace FlightSearch.Helpers
             TimeSpan dateDiff = dateTime1 - dateTime2;
             int hours = Convert.ToInt32(Math.Floor(dateDiff.TotalHours));
             int minutes = dateDiff.Minutes;
-            return (hours > 0 ? (hours > 1 ? hours + "Hours " : "1Hour ") : "") + (minutes > 0 ? minutes + "Minutes" : "");
+            return ((hours > 0 ? (hours > 1 ? hours + "Hours " : "1Hour ") : "") + (minutes > 0 ? minutes + "Minutes" : "")).Trim();
         }
 
         public static string MinutesToTimeFormat(int minutesRequest)
         {
             int hours = minutesRequest / 60;
             int minutes = minutesRequest % 60;
-            return (hours > 0 ? (hours > 1 ? hours + "Hours " : "1Hour ") : "") + (minutes > 0 ? minutes + "Minutes" : "");
+            return ((hours > 0 ? (hours > 1 ? hours + "Hours " : "1Hour ") : "") + (minutes > 0 ? minutes + "Minutes" : "")).Trim();
         }
 
         public static string MinutesToTimeFormatWithDays(int minutesRequest)
@@ -49,7 +49,7 @@ namespace FlightSearch.Helpers
             int days = minutesRequest / 1440;
             int hours = minutesRequest / 60 % 24;
             int minutes = minutesRequest % 60;
-            return (days > 0 ? (days > 1 ? days + "Days " : "1Day ") : "") + (hours > 0 ? (hours > 1 ? hours + "Hours " : "1Hour ") : "") + (minutes > 0 ? minutes + "Minutes" : "");
+            return ((days > 0 ? (days > 1 ? days + "Days " : "1Day ") : "") + (hours > 0 ? (hours > 1 ? hours + "Hours " : "1Hour ") : "") + (minutes > 0 ? minutes + "Minutes" : "")).Trim();
         }
 
         public static int MinutesDifference(DateTime dateTime1, DateTime dateTime2)

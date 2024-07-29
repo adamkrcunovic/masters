@@ -11,6 +11,8 @@ namespace FlightSearch.Database
         public DbSet<Country> Countries { get; set; }
         public DbSet<PublicHoliday> PublicHolidays { get; set; }
         public DbSet<UserFriendRequest> UserFriendRequests { get; set; }
+        public DbSet<Itinerary> Itinenaries { get; set; }
+        public DbSet<FlightSegment> FlightSegments { get; set; }
 
         public ApplicationDbContext(DbContextOptions options): base(options)
         {

@@ -219,7 +219,7 @@ namespace FlightSearch.Mappers
             var returnList = new List<String>();
             for (var i = 1; i < outAmadeusFlightSegmentDTOs.Count; i++)
             {
-                if (DateHelper.MinutesDifference(outAmadeusFlightSegmentDTOs[i].Departure.At, outAmadeusFlightSegmentDTOs[i - 1].Arrival.At) > 1440)
+                if (DateHelper.MinutesDifference(outAmadeusFlightSegmentDTOs[i].Departure.At, outAmadeusFlightSegmentDTOs[i - 1].Arrival.At) > 720)
                 returnList.Add(outAmadeusFlightSegmentDTOs[i].Departure.IataCode);
             }
             return returnList;
