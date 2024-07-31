@@ -4,6 +4,7 @@ using FlightSearch.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FlightSearch.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240730181123_Migration9")]
+    partial class Migration9
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,36 +24,6 @@ namespace FlightSearch.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
-
-            modelBuilder.Entity("FlightSearch.Database.Models.Comment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CommentText")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int?>("ItineraryId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("varchar(255)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ItineraryId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Comments");
-                });
 
             modelBuilder.Entity("FlightSearch.Database.Models.Country", b =>
                 {
@@ -167,29 +140,6 @@ namespace FlightSearch.Migrations
                     b.ToTable("Itinenaries");
                 });
 
-            modelBuilder.Entity("FlightSearch.Database.Models.ItineraryMember", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("ItineraryId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("varchar(255)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ItineraryId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ItineraryMembers");
-                });
-
             modelBuilder.Entity("FlightSearch.Database.Models.PublicHoliday", b =>
                 {
                     b.Property<int>("Id")
@@ -233,10 +183,6 @@ namespace FlightSearch.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(1);
-
-                    b.Property<string>("DeviceIds")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -362,7 +308,7 @@ namespace FlightSearch.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "f11598f9-70da-4b7b-9977-b4d0f58a0b2b",
+                            Id = "d7d863d0-b597-449e-90c8-c2d6c37b9da6",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -474,21 +420,6 @@ namespace FlightSearch.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("FlightSearch.Database.Models.Comment", b =>
-                {
-                    b.HasOne("FlightSearch.Database.Models.Itinerary", "Itinerary")
-                        .WithMany()
-                        .HasForeignKey("ItineraryId");
-
-                    b.HasOne("FlightSearch.Database.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Itinerary");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("FlightSearch.Database.Models.FlightSegment", b =>
                 {
                     b.HasOne("FlightSearch.Database.Models.Itinerary", "Itinerary")
@@ -503,21 +434,6 @@ namespace FlightSearch.Migrations
                     b.HasOne("FlightSearch.Database.Models.User", "User")
                         .WithMany("Itineraries")
                         .HasForeignKey("UserId");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("FlightSearch.Database.Models.ItineraryMember", b =>
-                {
-                    b.HasOne("FlightSearch.Database.Models.Itinerary", "Itinerary")
-                        .WithMany("InvitedMembers")
-                        .HasForeignKey("ItineraryId");
-
-                    b.HasOne("FlightSearch.Database.Models.User", "User")
-                        .WithMany("ReceivedItineraryRequests")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Itinerary");
 
                     b.Navigation("User");
                 });
@@ -615,8 +531,6 @@ namespace FlightSearch.Migrations
 
             modelBuilder.Entity("FlightSearch.Database.Models.Itinerary", b =>
                 {
-                    b.Navigation("InvitedMembers");
-
                     b.Navigation("Segments");
                 });
 
@@ -625,8 +539,6 @@ namespace FlightSearch.Migrations
                     b.Navigation("Itineraries");
 
                     b.Navigation("ReceivedFriendRequests");
-
-                    b.Navigation("ReceivedItineraryRequests");
 
                     b.Navigation("SentFriendRequests");
                 });

@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,6 +46,10 @@ builder.Services.AddSwaggerGen(option =>
             new string[]{}
         }
     });
+});
+
+builder.Services.AddControllers().AddNewtonsoftJson(options => {
+    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
 });
 
 string? defaultConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");

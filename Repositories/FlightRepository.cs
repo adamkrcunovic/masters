@@ -1,7 +1,5 @@
-using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
 using System.Web;
 using FlightSearch.Constants;
 using FlightSearch.Database;
@@ -18,11 +16,13 @@ namespace FlightSearch.Repositories
     {
         private readonly HttpClient _httpClient;
         private readonly IMemoryCache _memoryCache;
+        private readonly ApplicationDbContext _context;
 
-        public FlightRepository(HttpClient httpClient, IMemoryCache memoryCache)
+        public FlightRepository(HttpClient httpClient, IMemoryCache memoryCache, ApplicationDbContext context)
         {
             _httpClient = httpClient;
             _memoryCache = memoryCache;
+            _context = context;
         }
 
         public async Task<List<OutFlightDealDTO?>> GetFlightData(List<InAmadeusFlightSearchDTO> inAmadeusFlightSearchDTOs, Boolean multiCity)

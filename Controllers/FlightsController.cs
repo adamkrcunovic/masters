@@ -99,11 +99,5 @@ namespace FlightSearch.Controllers
             var returnData = await _flightRepository.GetFlightData(requests, inFlightSearchDTO.MulticityDefined());
             return Ok(returnData.ToFinalFlightData());
         }
-
-        /* [HttpPut("saveItinerary")]
-        public async Task<IActionResult> SaveItinerary([FromBody] InFlightSearchDTO inFlightSearchDTO)
-        {
-        } */
-
     }
 }

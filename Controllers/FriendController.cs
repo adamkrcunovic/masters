@@ -2,6 +2,7 @@ using FlightSearch.Helpers;
 using FlightSearch.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FlightSearch.Controllers
 {
@@ -46,6 +47,18 @@ namespace FlightSearch.Controllers
             {
                 return Ok();
             }
+        }
+
+        [HttpGet("search/{searchTerm}")]
+        [Authorize]
+        public async Task<IActionResult> SearchUsers([FromRoute] string searchTerm)
+        {
+            var users = await _friendRepository.SearchUsers(searchTerm);
+            if (users.IsNullOrEmpty())
+            {
+                return NotFound();
+            }
+            return Ok(users);
         }
     }
 }

@@ -1,7 +1,10 @@
 using FlightSearch.Database;
 using FlightSearch.Database.Models;
+using FlightSearch.DTOs.InModels;
 using FlightSearch.Enums;
+using FlightSearch.Helpers;
 using FlightSearch.Interfaces;
+using FlightSearch.Mappers;
 using Microsoft.EntityFrameworkCore;
 
 namespace FlightSearch.Repositories
@@ -48,6 +51,25 @@ namespace FlightSearch.Repositories
             friendRequest.FriendsStatus = AcceptAndRejectRequest ? FriendsStatus.Friends : FriendsStatus.ReqiestRejected;
             await _context.SaveChangesAsync();
             return friendRequest;
+        }
+
+        public async Task<List<OutUserDTO>> SearchUsers(string searchTerm)
+        {
+            var dbUsers = await _context.Users.ToListAsync();
+            dbUsers = dbUsers.Where(user => 
+                ((double)LevenshteinHelper.Calculate(searchTerm, user.Name + " " + user.LastName) / (user.Name + " " + user.LastName).Length < 0.15) ||
+                ((double)LevenshteinHelper.Calculate(searchTerm, user.LastName + " " + user.Name) / (user.LastName + " " + user.Name).Length < 0.15) ||
+                (user.Name.ToLower() + " " + user.LastName.ToLower()).Contains(searchTerm.ToLower()) ||
+                (user.LastName.ToLower() + " " + user.Name.ToLower()).Contains(searchTerm.ToLower())).ToList();
+            var foundUsers = new List<OutUserDTO>();
+            if (dbUsers != null)
+            {
+                foreach(var dbUser in dbUsers)
+                {
+                    foundUsers.Add(UserMapper.DbUserToOutUser(dbUser));
+                }
+            }
+            return foundUsers;
         }
     }
 }

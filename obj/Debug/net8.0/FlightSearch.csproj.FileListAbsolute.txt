@@ -113,3 +113,7 @@
 /Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 /Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Microsoft.IdentityModel.Tokens.dll
 /Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/System.IdentityModel.Tokens.Jwt.dll
+/Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Microsoft.AspNetCore.JsonPatch.dll
+/Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+/Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Newtonsoft.Json.dll
+/Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Newtonsoft.Json.Bson.dll

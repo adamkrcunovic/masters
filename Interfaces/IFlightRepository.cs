@@ -1,3 +1,4 @@
+using FlightSearch.Database.Models;
 using FlightSearch.DTOs.OutModels;
 using FlightSearch.DTOs.ThirdPartyModels.InModels;
 

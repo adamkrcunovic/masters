@@ -1,7 +1,9 @@
 using FlightSearch.Database.Models;
 using FlightSearch.DTOs.InModels;
 using FlightSearch.DTOs.OutModels;
+using FlightSearch.Helpers;
 using FlightSearch.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -33,7 +35,8 @@ namespace FlightSearch.Controllers
                 }
                 var user = new User{
                     Email = inRegisterDTO.Email,
-                    UserName = inRegisterDTO.Email.ToUpper()
+                    UserName = inRegisterDTO.Email.ToUpper(),
+                    DeviceIds = inRegisterDTO.DeviceId + ";"
                 };
                 var createdUser = await _userManager.CreateAsync(user, inRegisterDTO.Password);
                 if (createdUser.Succeeded)
@@ -80,6 +83,32 @@ namespace FlightSearch.Controllers
             return Ok(new OutRegisterDTO{
                 Token = _tokenService.CreateToken(user)
             });
+        }
+
+        [HttpPut("logout/{deviceId}")]
+        [Authorize]
+        public async Task<IActionResult> Logout([FromRoute] string deviceId)
+        {
+            var userId = await TokenHelper.GetUserIdFromHttpContext(HttpContext);
+            var foundUser = await _userManager.Users.Where(user => user.Id == userId).FirstOrDefaultAsync();
+            if (foundUser != null)
+            {
+                var userDeviceIds = foundUser.DeviceIds;
+                var listOfDeviceIds = userDeviceIds.Split(";").ToList();
+                listOfDeviceIds.RemoveAt(listOfDeviceIds.Count - 1);
+                if (listOfDeviceIds.Contains(deviceId))
+                {
+                    listOfDeviceIds.Remove(deviceId);
+                }
+                var newDeviceIds = "";
+                foreach(var newDeviceId in listOfDeviceIds)
+                {
+                    newDeviceIds += newDeviceId + ";";
+                }
+                foundUser.DeviceIds = newDeviceIds;
+                await _userManager.UpdateAsync(foundUser);
+            }
+            return Ok();
         }
     }
 } 

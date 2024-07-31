@@ -13,6 +13,8 @@ namespace FlightSearch.Database
         public DbSet<UserFriendRequest> UserFriendRequests { get; set; }
         public DbSet<Itinerary> Itinenaries { get; set; }
         public DbSet<FlightSegment> FlightSegments { get; set; }
+        public DbSet<ItineraryMember> ItineraryMembers { get; set; }
+        public DbSet<Comment> Comments { get; set; }
 
         public ApplicationDbContext(DbContextOptions options): base(options)
         {
@@ -32,6 +34,16 @@ namespace FlightSearch.Database
                 .HasOne(friendRequest => friendRequest.User2)
                 .WithMany(user => user.ReceivedFriendRequests)
                 .HasForeignKey(friendRequest => friendRequest.UserId2);
+
+            builder.Entity<ItineraryMember>()
+                .HasOne(itineraryMember => itineraryMember.Itinerary)
+                .WithMany(itinerary => itinerary.InvitedMembers)
+                .HasForeignKey(itineraryMember => itineraryMember.ItineraryId);
+
+            builder.Entity<ItineraryMember>()
+                .HasOne(itineraryMember => itineraryMember.User)
+                .WithMany(user => user.ReceivedItineraryRequests)
+                .HasForeignKey(itineraryMember => itineraryMember.UserId);
 
             builder.Entity<User>()
                 .Property(user => user.Name)

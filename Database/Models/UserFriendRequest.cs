@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using FlightSearch.Enums;
 
 namespace FlightSearch.Database.Models

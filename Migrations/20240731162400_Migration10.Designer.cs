@@ -4,6 +4,7 @@ using FlightSearch.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FlightSearch.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240731162400_Migration10")]
+    partial class Migration10
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -234,10 +237,6 @@ namespace FlightSearch.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(1);
 
-                    b.Property<string>("DeviceIds")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("varchar(256)");
@@ -362,7 +361,7 @@ namespace FlightSearch.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "f11598f9-70da-4b7b-9977-b4d0f58a0b2b",
+                            Id = "082f33be-05f6-407e-859f-f03f32fd837c",
                             Name = "User",
                             NormalizedName = "USER"
                         });

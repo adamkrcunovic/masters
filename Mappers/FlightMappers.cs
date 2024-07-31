@@ -1,9 +1,11 @@
+using FlightSearch.Database.Models;
 using FlightSearch.DTOs.InModels;
 using FlightSearch.DTOs.OutModels;
 using FlightSearch.DTOs.ThirdPartyModels.InModels;
 using FlightSearch.DTOs.ThirdPartyModels.OutModels;
 using FlightSearch.Enums;
 using FlightSearch.Helpers;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FlightSearch.Mappers
 {
@@ -271,6 +273,43 @@ namespace FlightSearch.Mappers
                 }
             }
             return multiCity ? newResponseList : responsesList;
+        }
+
+        public static FlightSegment OutFlightSegmentToDbSegment(this OutFlightSegmentDTO outFlightSegmentDTO)
+        {
+            return new FlightSegment{
+                From = outFlightSegmentDTO.From,
+                To = outFlightSegmentDTO.To,
+                Departure = outFlightSegmentDTO.Departure,
+                Arrival = outFlightSegmentDTO.Arrival,
+                Duration = outFlightSegmentDTO.Duration,
+                FlightCode = outFlightSegmentDTO.FlightCode
+            };
+        }
+
+        public static Itinerary InItineraryToDbItinerary(this InItineraryDTO inItineraryDTO, string userId)
+        {
+            var isReturnFlight = !inItineraryDTO.OutFlightDealDTO.FromSegments.IsNullOrEmpty();
+            var toSegmentLength = inItineraryDTO.OutFlightDealDTO.ToSegments.Count();
+            var segments = isReturnFlight ? inItineraryDTO.OutFlightDealDTO.ToSegments.Concat(inItineraryDTO.OutFlightDealDTO.FromSegments??new List<OutFlightSegmentDTO>()) : inItineraryDTO.OutFlightDealDTO.ToSegments;
+            Itinerary itinerary = new Itinerary {
+                Adults = inItineraryDTO.Adults,
+                TotalStayDuration = inItineraryDTO.OutFlightDealDTO.TotalStayDuration,
+                ToDuration = inItineraryDTO.OutFlightDealDTO.ToDuration,
+                Segments = segments.Select(segment => segment.OutFlightSegmentToDbSegment()).ToList(),
+                ToSegmentsLength = toSegmentLength,
+                LayoverToDuration = ListHelper.ListToString(inItineraryDTO.OutFlightDealDTO.LayoverToDuration),
+                CityVisit = ListHelper.ListToString(inItineraryDTO.OutFlightDealDTO.CityVisit),
+                FromDuration = inItineraryDTO.OutFlightDealDTO.FromDuration,
+                LayoverFromDuration = ListHelper.ListToString(inItineraryDTO.OutFlightDealDTO.LayoverFromDuration),
+                TotalPrice = inItineraryDTO.OutFlightDealDTO.TotalPrice,
+                ChatGPTGeneratedText = inItineraryDTO.ChatGPTGeneratedText,
+                PriceChangeNotificationType = inItineraryDTO.PriceChangeNotificationType,
+                Percentage = inItineraryDTO.Percentage,
+                Amount = inItineraryDTO.Amount,
+                UserId = userId
+            };
+            return itinerary;
         }
 
     }
