@@ -23,6 +23,7 @@ namespace FlightSearch.DTOs.InModels
         public string ToAirport { get; set; } = string.Empty;
         public bool? MixMultiCity { get; set; }
         public bool FlyTheNightBefore { get; set; } = false;
+        public string? IncludedAirlineCodes { get; set; }
     
         public bool MulticityRightfullyDefined() {
             bool MultiCity1Defined = MultiCity1 != null && MultiCity1.Length > 0;

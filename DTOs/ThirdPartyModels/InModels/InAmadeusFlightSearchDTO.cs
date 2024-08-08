@@ -11,5 +11,6 @@ namespace FlightSearch.DTOs.ThirdPartyModels.InModels
         public int Adults { get; set; }
         public string CurrencyCode { get; set; } = "EUR";
         public int Max { get; set; } = 250;
+        public string? IncludedAirlineCodes { get; set; }
     }
 }

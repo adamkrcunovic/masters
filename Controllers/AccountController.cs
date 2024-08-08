@@ -3,10 +3,12 @@ using FlightSearch.DTOs.InModels;
 using FlightSearch.DTOs.OutModels;
 using FlightSearch.Helpers;
 using FlightSearch.Interfaces;
+using FlightSearch.Mappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FlightSearch.Controllers
 {
@@ -33,11 +35,7 @@ namespace FlightSearch.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                var user = new User{
-                    Email = inRegisterDTO.Email,
-                    UserName = inRegisterDTO.Email.ToUpper(),
-                    DeviceIds = inRegisterDTO.DeviceId + ";"
-                };
+                var user = inRegisterDTO.InRegisterUserToDbUser();
                 var createdUser = await _userManager.CreateAsync(user, inRegisterDTO.Password);
                 if (createdUser.Succeeded)
                 {
@@ -80,9 +78,57 @@ namespace FlightSearch.Controllers
             {
                 return Unauthorized("Incorrect password");
             }
+            var userDeviceIds = user.DeviceIds;
+            var listOfDeviceIds = userDeviceIds.Split(";").ToList();
+            listOfDeviceIds.RemoveAt(listOfDeviceIds.Count - 1);
+            if (!listOfDeviceIds.Contains(inLoginDTO.DeviceId))
+            {
+                listOfDeviceIds.Add(inLoginDTO.DeviceId);
+            }
+            var newDeviceIds = "";
+            foreach(var newDeviceId in listOfDeviceIds)
+            {
+                newDeviceIds += newDeviceId + ";";
+            }
+            user.DeviceIds = newDeviceIds;
+            await _userManager.UpdateAsync(user);
             return Ok(new OutRegisterDTO{
                 Token = _tokenService.CreateToken(user)
             });
+        }
+
+        [HttpPut("editPersonalData")]
+        [Authorize]
+        public async Task<IActionResult> EditPersonalData([FromBody] InEditPersonalDataDTO inEditPersonalDataDTO)
+        {
+            var userId = await TokenHelper.GetUserIdFromHttpContext(HttpContext);
+            var foundUser = await _userManager.Users.Where(user => user.Id == userId).FirstOrDefaultAsync();
+            if (foundUser != null)
+            {
+                if (!inEditPersonalDataDTO.Name.IsNullOrEmpty())
+                {
+                    foundUser.Name = inEditPersonalDataDTO.Name??"";
+                }
+                if (!inEditPersonalDataDTO.LastName.IsNullOrEmpty())
+                {
+                    foundUser.LastName = inEditPersonalDataDTO.LastName??"";
+                }
+                if (inEditPersonalDataDTO.Birthday != null)
+                {
+                    foundUser.Birthday = inEditPersonalDataDTO.Birthday??new DateOnly();
+                }
+                if (inEditPersonalDataDTO.CountryId != null)
+                {
+                    foundUser.CountryId = inEditPersonalDataDTO.CountryId;
+                }
+                if (!inEditPersonalDataDTO.Preferences.IsNullOrEmpty())
+                {
+                    foundUser.Name = inEditPersonalDataDTO.Preferences??"";
+                }
+                await _userManager.UpdateAsync(foundUser);
+                return Ok();
+            }
+            return NotFound("User not found");
         }
 
         [HttpPut("logout/{deviceId}")]
@@ -107,8 +153,9 @@ namespace FlightSearch.Controllers
                 }
                 foundUser.DeviceIds = newDeviceIds;
                 await _userManager.UpdateAsync(foundUser);
+                return Ok();
             }
-            return Ok();
+            return NotFound("User not found");
         }
     }
 } 
