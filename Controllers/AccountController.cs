@@ -123,12 +123,25 @@ namespace FlightSearch.Controllers
                 }
                 if (!inEditPersonalDataDTO.Preferences.IsNullOrEmpty())
                 {
-                    foundUser.Name = inEditPersonalDataDTO.Preferences??"";
+                    foundUser.Preferences = inEditPersonalDataDTO.Preferences??"";
                 }
                 await _userManager.UpdateAsync(foundUser);
                 return Ok();
             }
             return NotFound("User not found");
+        }
+
+        [HttpGet("getUserData")]
+        [Authorize]
+        public async Task<IActionResult> GetUserData()
+        {
+            var userId = await TokenHelper.GetUserIdFromHttpContext(HttpContext);
+            var foundUser = await _userManager.Users.Include(user => user.Country).Where(user => user.Id == userId).FirstOrDefaultAsync();
+            if (foundUser != null)
+            {
+                return Ok(foundUser.DbUserToOutUser());
+            }
+            return NotFound();
         }
 
         [HttpPut("logout/{deviceId}")]

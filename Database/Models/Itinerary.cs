@@ -1,4 +1,4 @@
-using FlightSearch.DTOs.OutModels;
+using System.ComponentModel.DataAnnotations;
 using FlightSearch.Enums;
 
 namespace FlightSearch.Database.Models
@@ -6,6 +6,7 @@ namespace FlightSearch.Database.Models
     public class Itinerary
     {
         public int Id { get; set; }
+        public string ItineraryName { get; set; } = string.Empty;
         public int Adults { get; set; }
         public string? TotalStayDuration { get; set; }
         public string ToDuration { get; set; } = string.Empty;

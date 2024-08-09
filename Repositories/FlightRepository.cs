@@ -25,7 +25,7 @@ namespace FlightSearch.Repositories
             _context = context;
         }
 
-        public async Task<List<OutFlightDealDTO?>> GetFlightData(List<InAmadeusFlightSearchDTO> inAmadeusFlightSearchDTOs, Boolean multiCity)
+        public async Task<List<OutFlightDealDTO?>> GetFlightData(List<InAmadeusFlightSearchDTO> inAmadeusFlightSearchDTOs, Boolean multiCity, Boolean flyTheNightBefore)
         {
             var taskList = new List<Task<OutAmadeusFlightSearchDTO?>>();
             var lastInAmadeusFlightSearchDTO = inAmadeusFlightSearchDTOs.Last();
@@ -48,9 +48,14 @@ namespace FlightSearch.Repositories
             OutAmadeusFlightSearchDTO finalData = new();
             if (responsesList != null)
             {
-                foreach(var response in responsesList) {
+                for(var i = 0; i < responsesList.Count(); i++) {
+                    var response = responsesList[i];
                     if (response != null)
                     {
+                        if (flyTheNightBefore && i % 2 == 0) // THE NIGHT BEFORE!!!
+                        {
+                            response.Data = response.Data.Where(outAmadeusFlightData => outAmadeusFlightData.Itineraries[0].Segments[0].Departure.At.Hour >= 18).ToList();
+                        }
                         finalData.Data = finalData.Data.Concat(response.Data).ToList();
                     }
                 }

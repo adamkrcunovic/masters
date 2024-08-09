@@ -6,6 +6,6 @@ namespace FlightSearch.Interfaces
 {
     public interface IFlightRepository
     {
-        Task<List<OutFlightDealDTO?>> GetFlightData(List<InAmadeusFlightSearchDTO> inAmadeusFlightSearchDTOs, Boolean multiCity);
+        Task<List<OutFlightDealDTO?>> GetFlightData(List<InAmadeusFlightSearchDTO> inAmadeusFlightSearchDTOs, Boolean multiCity, Boolean flyTheNightBefore);
     }
 }

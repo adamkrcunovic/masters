@@ -1,4 +1,7 @@
+using FlightSearch.Database.Models;
 using FlightSearch.DTOs.InModels;
+using FlightSearch.DTOs.OutModels;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FlightSearch.Mappers
 {
@@ -15,6 +18,29 @@ namespace FlightSearch.Mappers
             tripText += "Now i am going to give you an example for two day trip and you generate plan like that. ";
             tripText += "-----Day#1 DayOfTheWeek (date)-----(new line)#1 Attraction 1 (lat1, lon1) - plan(new line)#2 Attraction 2 (lat2, lon2) - plan(new line)-----Day#2 DayOfTheWeek (date)-----(new line)#1 Attraction 3 (lat3, lon3) - plan(new line)#2 Attraction 4 (lat4, lon4) - plan(new line)";
             return tripText;
+        }
+
+        public static OutTripDTO ToOutTripFromDbTrip(this Itinerary itinerary, bool myTrip)
+        {
+            var invitedUserDBList = itinerary.InvitedMembers.Select(invitedMember => invitedMember.User).Where(user => user != null).ToList();
+            var invitedOutUserList = invitedUserDBList.Where(user => user != null).Select(user => user.DbUserToOutUser()).ToList();
+            return new OutTripDTO {
+                Id = itinerary.Id,
+                ItineraryName = itinerary.ItineraryName,
+                Adults = itinerary.Adults,
+                TotalStayDuration = itinerary.TotalStayDuration,
+                ToDuration = itinerary.ToDuration,
+                ToSegments = itinerary.Segments.Take(itinerary.ToSegmentsLength).Select(segment => segment.DbSegmentToOutFlightSegment()).ToList(),
+                LayoverToDuration = itinerary.LayoverToDuration.IsNullOrEmpty() ? new List<string>() : itinerary.LayoverToDuration.Split(";").ToList().Take(itinerary.LayoverToDuration.Split(";").ToList().Count() - 1).ToList(),
+                FromDuration = itinerary.FromDuration,
+                FromSegments = itinerary.Segments.Skip(itinerary.ToSegmentsLength).Select(segment => segment.DbSegmentToOutFlightSegment()).ToList(),
+                LayoverFromDuration = itinerary.LayoverFromDuration.IsNullOrEmpty() ? new List<string>() : itinerary.LayoverFromDuration.Split(";").ToList().Take(itinerary.LayoverFromDuration.Split(";").ToList().Count() - 1).ToList(),
+                CityVisit = itinerary.CityVisit.IsNullOrEmpty() ? new List<string>() : itinerary.CityVisit.Split(";").ToList().Take(itinerary.CityVisit.Split(";").ToList().Count() - 1).ToList(),
+                TotalPrice = itinerary.TotalPrice,
+                ChatGPTGeneratedText = itinerary.ChatGPTGeneratedText,
+                InvitedMembers = invitedOutUserList,
+                Creator = itinerary.User.DbUserToOutUser()
+            };
         }
     }
 }

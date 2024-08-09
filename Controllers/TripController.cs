@@ -67,5 +67,14 @@ namespace FlightSearch.Controllers
                 return Unauthorized();
             }
         }
+
+        [HttpGet("getTrips")]
+        [Authorize]
+        public async Task<IActionResult> GetTrips()
+        {
+            var userId = await TokenHelper.GetUserIdFromHttpContext(HttpContext);
+            var myItineraries = await _tripRepository.GetTrips(userId);
+            return Ok(myItineraries);
+        }
     }
 }

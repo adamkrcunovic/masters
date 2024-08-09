@@ -1,6 +1,5 @@
 using FlightSearch.Database.Models;
 using FlightSearch.DTOs.InModels;
-using FlightSearch.DTOs.OutModels;
 
 namespace FlightSearch.Mappers
 {
@@ -11,7 +10,10 @@ namespace FlightSearch.Mappers
             return new OutUserDTO{
                 Id = user.Id,
                 Name = user.Name,
-                LastName = user.LastName
+                LastName = user.LastName,
+                Birthday = user.Birthday,
+                Country = user.Country != null ? user.Country.CountryName : "",
+                Preferences = user.Preferences
             };
         }
 

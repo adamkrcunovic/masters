@@ -4,11 +4,12 @@ using System.Text.Json;
 using FlightSearch.Constants;
 using FlightSearch.Database;
 using FlightSearch.Database.Models;
+using FlightSearch.DTOs.OutModels;
 using FlightSearch.DTOs.ThirdPartyModels.OutModels;
 using FlightSearch.Enums;
 using FlightSearch.Interfaces;
+using FlightSearch.Mappers;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 namespace FlightSearch.Repositories
 {
@@ -94,6 +95,27 @@ namespace FlightSearch.Repositories
             });
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<List<OutTripDTO>> GetTrips(string myUserId)
+        {
+            var myTrips = await _context.Itinenaries
+                .Include(itinerary => itinerary.User).ThenInclude(user => user.Country)
+                .Include(itinerary => itinerary.Segments)
+                .Include(itinerary => itinerary.InvitedMembers).ThenInclude(invitedMember => invitedMember.User).ThenInclude(user => user.Country)
+                .Where(itinerary => itinerary.UserId == myUserId)
+                .Select(myTrip => myTrip.ToOutTripFromDbTrip(false)).ToListAsync();
+            var myInvitedTrips = await _context.ItineraryMembers
+                .Where(itineraryMember => itineraryMember.UserId == myUserId)
+                .Include(itineraryMember => itineraryMember.Itinerary)
+                .ThenInclude(itinerary => itinerary.User).ThenInclude(user => user.Country)
+                .Include(itineraryMember => itineraryMember.Itinerary)
+                .ThenInclude(itinerary => itinerary.Segments)
+                .Include(itineraryMember => itineraryMember.Itinerary)
+                .ThenInclude(itinerary => itinerary.InvitedMembers).ThenInclude(invitedMember => invitedMember.User).ThenInclude(user => user.Country)
+                .Where(itinerary => itinerary.UserId == myUserId)
+                .Select(itineraryMember => itineraryMember.Itinerary.ToOutTripFromDbTrip(false)).ToListAsync();
+            return myTrips.Concat(myInvitedTrips).ToList();
         }
     }
 }

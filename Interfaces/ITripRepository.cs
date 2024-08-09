@@ -1,4 +1,5 @@
 using FlightSearch.Database.Models;
+using FlightSearch.DTOs.OutModels;
 
 namespace FlightSearch.Interfaces
 {
@@ -8,5 +9,6 @@ namespace FlightSearch.Interfaces
         Task<Itinerary> SaveItinerary(Itinerary itinerary);
         Task<bool> InviteUserToTrip(int itineraryId, string myUserId, string user);
         Task<bool> AddComment(int itineraryId, string myUserId, string comment);
+        Task<List<OutTripDTO>> GetTrips(string myUserId);
     }
 }

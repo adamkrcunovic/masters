@@ -287,12 +287,25 @@ namespace FlightSearch.Mappers
             };
         }
 
+        public static OutFlightSegmentDTO DbSegmentToOutFlightSegment(this FlightSegment flightSegment)
+        {
+            return new OutFlightSegmentDTO{
+                From = flightSegment.From,
+                To = flightSegment.To,
+                Departure = flightSegment.Departure,
+                Arrival = flightSegment.Arrival,
+                Duration = flightSegment.Duration,
+                FlightCode = flightSegment.FlightCode
+            };
+        }
+
         public static Itinerary InItineraryToDbItinerary(this InItineraryDTO inItineraryDTO, string userId)
         {
             var isReturnFlight = !inItineraryDTO.OutFlightDealDTO.FromSegments.IsNullOrEmpty();
             var toSegmentLength = inItineraryDTO.OutFlightDealDTO.ToSegments.Count();
             var segments = isReturnFlight ? inItineraryDTO.OutFlightDealDTO.ToSegments.Concat(inItineraryDTO.OutFlightDealDTO.FromSegments??new List<OutFlightSegmentDTO>()) : inItineraryDTO.OutFlightDealDTO.ToSegments;
             Itinerary itinerary = new Itinerary {
+                ItineraryName = inItineraryDTO.ItineraryName,
                 Adults = inItineraryDTO.Adults,
                 TotalStayDuration = inItineraryDTO.OutFlightDealDTO.TotalStayDuration,
                 ToDuration = inItineraryDTO.OutFlightDealDTO.ToDuration,

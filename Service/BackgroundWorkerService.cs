@@ -37,8 +37,10 @@ namespace FlightSearch.Service
                 
                 var today = DateHelper.Today;
                 var itinerariesToCheck = await _context.Itinenaries
+                    .Include(itinerary => itinerary.User)
                     .Include(itinerary => itinerary.Segments)
                     .Include(itinerary => itinerary.InvitedMembers)
+                    .ThenInclude(invitedMember => invitedMember.User)
                     .Where(itinerary => itinerary.PriceChangeNotificationType != Enums.PriceChangeNotificationType.NotSet).ToListAsync();
                 itinerariesToCheck = itinerariesToCheck.Where(itineraryToCheck => itineraryToCheck.Segments[0].Departure > DateTime.Now).ToList();
 
@@ -119,7 +121,7 @@ namespace FlightSearch.Service
                     }
                     listOfAmadeusFlightSearches = listOfAmadeusFlightSearches.Concat(listsToAdd).ToList();
                 }
-                Console.WriteLine(JsonSerializer.Serialize(listOfAmadeusFlightSearches));
+                //Console.WriteLine(JsonSerializer.Serialize(listOfAmadeusFlightSearches));
                 var amadeusCallsResponses = await GetFlightData(listOfAmadeusFlightSearches);
                 //Console.WriteLine(JsonSerializer.Serialize(amadeusCallsResponses));
 
@@ -131,6 +133,9 @@ namespace FlightSearch.Service
                         var userItinerary = itinerariesToCheck[i];
                         var toSegmentsItinerary = userItinerary.Segments.Take(userItinerary.ToSegmentsLength).ToList();
                         var fromSegmentsItinerary = userItinerary.Segments.TakeLast(userItinerary.Segments.Count - userItinerary.ToSegmentsLength).ToList();
+                        
+                        var currentPrice = 0d;
+                        
                         if (callsNeeded == 1)
                         {
                             var callData = amadeusCallsResponses[0];
@@ -146,7 +151,7 @@ namespace FlightSearch.Service
                                         if (FlightSegmentsHelper.AreSegmentsEqual(toSegmentsItinerary, possibility.Itineraries[0].Segments))
                                         {
                                             Console.WriteLine(JsonSerializer.Serialize(possibility.Itineraries[0].Segments));
-                                            var price = possibility.Price.GrandTotal;
+                                            currentPrice = Double.Parse(possibility.Price.GrandTotal);
                                         }
                                     }
                                 }
@@ -159,7 +164,7 @@ namespace FlightSearch.Service
                                         {
                                             Console.WriteLine(JsonSerializer.Serialize(possibility.Itineraries[0].Segments));
                                             Console.WriteLine(JsonSerializer.Serialize(possibility.Itineraries[1].Segments));
-                                            var price = possibility.Price.GrandTotal;
+                                            currentPrice = Double.Parse(possibility.Price.GrandTotal);
                                         }
                                     }
                                 }
@@ -176,21 +181,63 @@ namespace FlightSearch.Service
                             {
                                 var possibilities1 = callData1.Data;
                                 var possibilities2 = callData2.Data;
+                                var price1 = 0d;
+                                var price2 = 0d;
                                 foreach(var possibility in possibilities1)
                                 {
                                     if (FlightSegmentsHelper.AreSegmentsEqual(toSegmentsItinerary, possibility.Itineraries[0].Segments))
                                     {
                                         Console.WriteLine(JsonSerializer.Serialize(possibility.Itineraries[0].Segments));
-                                        var price = possibility.Price.GrandTotal;
+                                        price1 = Double.Parse(possibility.Price.GrandTotal);
                                     }
                                 }
-                                foreach(var possibility in possibilities2)
+                                if (price1 > 0)
                                 {
-                                    if (FlightSegmentsHelper.AreSegmentsEqual(fromSegmentsItinerary, possibility.Itineraries[0].Segments))
+                                    foreach(var possibility in possibilities2)
                                     {
-                                        Console.WriteLine(JsonSerializer.Serialize(possibility.Itineraries[0].Segments));
-                                        var price = possibility.Price.GrandTotal;
+                                        if (FlightSegmentsHelper.AreSegmentsEqual(fromSegmentsItinerary, possibility.Itineraries[0].Segments))
+                                        {
+                                            Console.WriteLine(JsonSerializer.Serialize(possibility.Itineraries[0].Segments));
+                                            price2 = Double.Parse(possibility.Price.GrandTotal);
+                                        }
                                     }
+                                    if (price2 > 0)
+                                    {
+                                        currentPrice = price1 + price2;
+                                    }
+                                }
+                            }
+                        }
+                        var lastPrice = userItinerary.TotalPrice;
+                        var priceDiferenceAmount = lastPrice - currentPrice;
+                        var priceDiferencePercent = priceDiferenceAmount / lastPrice;
+                        Console.WriteLine($"Old price {lastPrice}, new price {currentPrice}");
+                        if (userItinerary.PriceChangeNotificationType == Enums.PriceChangeNotificationType.Amount)
+                        {
+                            if (Math.Abs(priceDiferenceAmount) > userItinerary.Amount)
+                            {
+                                if (priceDiferenceAmount > 0)
+                                {
+                                    // PRICE DROP BY AMOUNT
+
+                                }
+                                else
+                                {
+                                    // PRICE GROW BY AMOUNT
+                                }
+                            }
+                        }
+                        if (userItinerary.PriceChangeNotificationType == Enums.PriceChangeNotificationType.Percentage)
+                        {
+                            if (priceDiferencePercent > (userItinerary.Percentage / 100))
+                            {
+                                if (priceDiferenceAmount > 0)
+                                {
+                                    // PRICE DROP BY PERCENT
+                                }
+                                else
+                                {
+                                    // PRICE GROW BY PERCENT
                                 }
                             }
                         }

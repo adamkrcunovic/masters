@@ -96,7 +96,7 @@ namespace FlightSearch.Controllers
                 }
             }
             var requests = inFlightSearchDTO.ToAmadeusFLightSearchDTOs();
-            var returnData = await _flightRepository.GetFlightData(requests, inFlightSearchDTO.MulticityDefined());
+            var returnData = await _flightRepository.GetFlightData(requests, inFlightSearchDTO.MulticityDefined(), inFlightSearchDTO.FlyTheNightBefore);
             return Ok(returnData.ToFinalFlightData());
         }
     }
