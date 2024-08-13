@@ -4,7 +4,6 @@ namespace FlightSearch.DTOs.OutModels
     {
         public string From { get; set; } = string.Empty;
         public string To { get; set; } = string.Empty;
-
         public DateTime Departure { get; set; }
         public DateTime Arrival { get; set; }
         public string Duration { get; set; } = string.Empty;

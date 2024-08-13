@@ -4,7 +4,7 @@ namespace FlightSearch.Enums
     {
         ExactDate,
         MonthDirectFlight,
-        DuratinInMonth,
+        DurationInMonth,
         LongWeekendInMonth,
         DoubleLongWeekendInMonth
     }

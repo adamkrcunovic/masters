@@ -40,8 +40,8 @@ namespace FlightSearch.Controllers
             return Ok(listOfDatePairs);
         }
 
-        [HttpGet("search")]
-        public async Task<IActionResult> SearchFlights([FromQuery] InFlightSearchDTO inFlightSearchDTO)
+        [HttpPatch("search")]
+        public async Task<IActionResult> SearchFlights([FromBody] InFlightSearchDTO inFlightSearchDTO)
         {
             if (!inFlightSearchDTO.MulticityRightfullyDefined())
             {
@@ -70,7 +70,7 @@ namespace FlightSearch.Controllers
                     break;
                 }
                 case (FlightSearchType.MonthDirectFlight):
-                case (FlightSearchType.DuratinInMonth):
+                case (FlightSearchType.DurationInMonth):
                 case (FlightSearchType.LongWeekendInMonth):
                 case (FlightSearchType.DoubleLongWeekendInMonth):
                 {
@@ -78,7 +78,7 @@ namespace FlightSearch.Controllers
                     {
                         return BadRequest("Month and date are not valid");
                     }
-                    if (inFlightSearchDTO.FlightSearchType == FlightSearchType.DuratinInMonth && (inFlightSearchDTO.TripDuration == null || inFlightSearchDTO.TripDuration < 1 || inFlightSearchDTO.TripDuration > 21))
+                    if (inFlightSearchDTO.FlightSearchType == FlightSearchType.DurationInMonth && (inFlightSearchDTO.TripDuration == null || inFlightSearchDTO.TripDuration < 1 || inFlightSearchDTO.TripDuration > 21))
                     {
                         return BadRequest("You need to provide trip duration(within 3 weeks)");
                     }

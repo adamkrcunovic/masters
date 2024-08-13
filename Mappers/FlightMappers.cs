@@ -46,14 +46,14 @@ namespace FlightSearch.Mappers
                         while (dayForLoop.Day != 1);
                         break;
                     }
-                    case FlightSearchType.DuratinInMonth:
+                    case FlightSearchType.DurationInMonth:
                     case FlightSearchType.LongWeekendInMonth:
                     case FlightSearchType.DoubleLongWeekendInMonth:
                     {
                         var tripDuration = 0;
                         switch (inFlightSearchDTO.FlightSearchType)
                         {
-                            case FlightSearchType.DuratinInMonth:
+                            case FlightSearchType.DurationInMonth:
                             {
                                 tripDuration = inFlightSearchDTO.TripDuration.GetValueOrDefault();
                                 break;
@@ -75,7 +75,7 @@ namespace FlightSearch.Mappers
                             var dayOfWeek = dayForLoop.DayOfWeek;
                             var capableForLongWeekend = dayOfWeek == DayOfWeek.Thursday || dayOfWeek == DayOfWeek.Friday || dayOfWeek == DayOfWeek.Saturday;
                             var capableForDoubleWeekend = dayOfWeek == DayOfWeek.Saturday;
-                            if (inFlightSearchDTO.FlightSearchType == FlightSearchType.DuratinInMonth || 
+                            if (inFlightSearchDTO.FlightSearchType == FlightSearchType.DurationInMonth || 
                                 (inFlightSearchDTO.FlightSearchType == FlightSearchType.LongWeekendInMonth && capableForLongWeekend) ||
                                 (inFlightSearchDTO.FlightSearchType == FlightSearchType.DoubleLongWeekendInMonth && capableForDoubleWeekend))
                             {

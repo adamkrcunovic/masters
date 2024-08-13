@@ -42,9 +42,10 @@ namespace FlightSearch.Controllers
                     var roleResult = await _userManager.AddToRoleAsync(user, "User");
                     if (roleResult.Succeeded)
                     {
-                        return Ok(new OutRegisterDTO{
+                        var token = new OutRegisterDTO{
                             Token = _tokenService.CreateToken(user)
-                        });
+                        };
+                        return Ok(token.Token);
                     }
                     else
                     {
