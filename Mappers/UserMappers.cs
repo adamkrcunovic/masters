@@ -7,6 +7,29 @@ namespace FlightSearch.Mappers
     {
         public static OutUserDTO DbUserToOutUser(this User user)
         {
+            Console.WriteLine(user.Name);
+            var friendsFromSentRequests = user.SentFriendRequests.Where(friendRequest => friendRequest.FriendsStatus == Enums.FriendsStatus.Friends).Select(friendRequest => friendRequest.User2).ToList();
+            var friendsFromReceivedRequests = user.ReceivedFriendRequests.Where(friendRequest => friendRequest.FriendsStatus == Enums.FriendsStatus.Friends).Select(friendRequest => friendRequest.User1).ToList();
+            var friendsFinal = friendsFromSentRequests.Concat(friendsFromReceivedRequests).Select(user => user.DbUserToOutUserWithoutRequests()).ToList();
+            var pendingUsers = user.SentFriendRequests.Where(friendRequest => friendRequest.FriendsStatus != Enums.FriendsStatus.Friends).Select(friendRequest => friendRequest.User2.DbUserToOutUserWithoutRequests()).ToList();
+            var requests = user.ReceivedFriendRequests.Where(friendRequest => friendRequest.FriendsStatus == Enums.FriendsStatus.RequestSent).Select(friendRequest => friendRequest.User1.DbUserToOutUserWithoutRequests()).ToList();
+            Console.WriteLine(pendingUsers.Count);
+            Console.WriteLine(requests.Count);
+            return new OutUserDTO{
+                Id = user.Id,
+                Name = user.Name,
+                LastName = user.LastName,
+                Birthday = user.Birthday,
+                Country = user.Country != null ? user.Country.CountryName : "",
+                Preferences = user.Preferences,
+                Friends = friendsFinal,
+                Pending = pendingUsers,
+                Requests = requests
+            };
+        }
+
+        public static OutUserDTO DbUserToOutUserWithoutRequests(this User user)
+        {
             return new OutUserDTO{
                 Id = user.Id,
                 Name = user.Name,

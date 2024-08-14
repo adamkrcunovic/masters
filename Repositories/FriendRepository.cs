@@ -55,7 +55,7 @@ namespace FlightSearch.Repositories
 
         public async Task<List<OutUserDTO>> SearchUsers(string searchTerm)
         {
-            var dbUsers = await _context.Users.ToListAsync();
+            var dbUsers = await _context.Users.Include(user => user.Country).ToListAsync();
             dbUsers = dbUsers.Where(user => 
                 ((double)LevenshteinHelper.Calculate(searchTerm, user.Name + " " + user.LastName) / (user.Name + " " + user.LastName).Length < 0.15) ||
                 ((double)LevenshteinHelper.Calculate(searchTerm, user.LastName + " " + user.Name) / (user.LastName + " " + user.Name).Length < 0.15) ||

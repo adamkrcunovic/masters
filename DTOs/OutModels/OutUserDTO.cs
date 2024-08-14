@@ -8,5 +8,8 @@ namespace FlightSearch.DTOs.InModels
         public string Country { get; set; } = string.Empty;
         public DateOnly Birthday { get; set; }
         public string Preferences { get; set; } = string.Empty;
+        public List<OutUserDTO> Friends { get; set; } = new List<OutUserDTO>();
+        public List<OutUserDTO> Requests { get; set; } = new List<OutUserDTO>();
+        public List<OutUserDTO> Pending { get; set; } = new List<OutUserDTO>();
     }
 }

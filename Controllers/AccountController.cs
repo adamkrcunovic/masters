@@ -93,9 +93,10 @@ namespace FlightSearch.Controllers
             }
             user.DeviceIds = newDeviceIds;
             await _userManager.UpdateAsync(user);
-            return Ok(new OutRegisterDTO{
+            var token = new OutRegisterDTO{
                 Token = _tokenService.CreateToken(user)
-            });
+            };
+            return Ok(token.Token);
         }
 
         [HttpPut("editPersonalData")]
@@ -137,7 +138,7 @@ namespace FlightSearch.Controllers
         public async Task<IActionResult> GetUserData()
         {
             var userId = await TokenHelper.GetUserIdFromHttpContext(HttpContext);
-            var foundUser = await _userManager.Users.Include(user => user.Country).Where(user => user.Id == userId).FirstOrDefaultAsync();
+            var foundUser = await _userManager.Users.Include(user => user.Country).Include(user => user.SentFriendRequests).ThenInclude(sentFriendRequest => sentFriendRequest.User2).Include(user => user.ReceivedFriendRequests).ThenInclude(receivedFriendRequest => receivedFriendRequest.User1).Where(user => user.Id == userId).FirstOrDefaultAsync();
             if (foundUser != null)
             {
                 return Ok(foundUser.DbUserToOutUser());
