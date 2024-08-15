@@ -71,5 +71,10 @@ namespace FlightSearch.Repositories
             }
             return foundUsers;
         }
+
+        public async Task<User?> getFriend(string userId)
+        {
+            return await _context.Users.Where(user => user.Id == userId).FirstOrDefaultAsync();
+        }
     }
 }

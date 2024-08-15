@@ -115,6 +115,11 @@ namespace FlightSearch.Controllers
                 {
                     foundUser.LastName = inEditPersonalDataDTO.LastName??"";
                 }
+                if (!inEditPersonalDataDTO.Email.IsNullOrEmpty())
+                {
+                    foundUser.Email = inEditPersonalDataDTO.Email??"";
+                    foundUser.UserName = (inEditPersonalDataDTO.Email??"").ToUpper();
+                }
                 if (inEditPersonalDataDTO.Birthday != null)
                 {
                     foundUser.Birthday = inEditPersonalDataDTO.Birthday??new DateOnly();

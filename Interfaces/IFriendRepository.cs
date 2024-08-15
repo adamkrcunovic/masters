@@ -9,5 +9,6 @@ namespace FlightSearch.Interfaces
         Task<UserFriendRequest?> CheckFriendRequestExists(string user1, string user2);
         Task<UserFriendRequest?> AcceptOrRejectFriendRequest(string user1, string user2, bool AcceptAndRejectRequest);
         Task<List<OutUserDTO>> SearchUsers(string searchTerm);
+        Task<User?> getFriend(string userId);
     }
 }

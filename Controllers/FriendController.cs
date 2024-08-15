@@ -29,7 +29,9 @@ namespace FlightSearch.Controllers
             }
             else
             {
-                return Ok();
+                var friend = await _friendRepository.getFriend(friendId);
+                var devicesIds = friend.DeviceIds.Split(";").Where(id => !id.IsNullOrEmpty()).ToList();
+                return Ok(devicesIds);
             }
         }
 
@@ -45,7 +47,9 @@ namespace FlightSearch.Controllers
             }
             else
             {
-                return Ok();
+                var friend = await _friendRepository.getFriend(friendId);
+                var devicesIds = friend.DeviceIds.Split(";").Where(id => !id.IsNullOrEmpty()).ToList();
+                return Ok(acceptAndRejectRequest ? devicesIds : new List<string>());
             }
         }
 
