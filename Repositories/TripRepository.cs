@@ -46,7 +46,7 @@ namespace FlightSearch.Repositories
             return itinerary;
         }
 
-        public async Task<bool> InviteUserToTrip(int itineraryId, string myUserId, string user)
+        public async Task<List<String>?> InviteUserToTrip(int itineraryId, string myUserId, string user)
         {
             var friendship = await _context.UserFriendRequests.Where(userRequest => 
                 userRequest.FriendsStatus == FriendsStatus.Friends &&
@@ -54,38 +54,52 @@ namespace FlightSearch.Repositories
                 (userRequest.UserId1 == user && userRequest.UserId2 == myUserId))).FirstOrDefaultAsync();
             if (friendship == null)
             {
-                return false;
+                return null;
             }
             var foundItinerary = await _context.Itinenaries.Where(itinerary => itineraryId == itinerary.Id).FirstOrDefaultAsync();
             if (foundItinerary == null || foundItinerary.UserId != myUserId)
             {
-                return false;
+                return null;
             }
             var foundMemberItinerary = await _context.ItineraryMembers.Where(memberItinerary => memberItinerary.ItineraryId == itineraryId && memberItinerary.UserId == user).FirstOrDefaultAsync();
             if (foundMemberItinerary != null)
             {
-                return false;
+                return null;
             }
             await _context.ItineraryMembers.AddAsync(new ItineraryMember{
                 ItineraryId = itineraryId,
                 UserId = user
             });
             await _context.SaveChangesAsync();
-            return true;
+            var friend = await _context.Users.Where(userDb => userDb.Id == user).FirstOrDefaultAsync();
+            var devicesIds = friend.DeviceIds.Split(";").Where(id => id.Length > 0).ToList();
+            return devicesIds;
         }
 
-        public async Task<bool> AddComment(int itineraryId, string myUserId, string comment)
+        public async Task<List<String>?> AddComment(int itineraryId, string myUserId, string comment)
         {
-            var foundItinerary = await _context.Itinenaries.Include(itinerary => itinerary.InvitedMembers).Where(itinerary => itineraryId == itinerary.Id).FirstOrDefaultAsync();
+            var devicesToSendNotification = new List<string>();
+            var foundItinerary = await _context.Itinenaries.Include(itinerary => itinerary.InvitedMembers).ThenInclude(itineraryMember => itineraryMember.User).Include(itinerary => itinerary.User).Where(itinerary => itineraryId == itinerary.Id).FirstOrDefaultAsync();
             if (foundItinerary == null)
             {
-                return false;
+                return null;
             }
             var creatorId = foundItinerary.UserId;
-            var invitedMembers = (foundItinerary.InvitedMembers??new List<ItineraryMember>()).Select(invitedMember => invitedMember.UserId).ToList();
+            var invitedMembersUsers = (foundItinerary.InvitedMembers??new List<ItineraryMember>()).ToList();
+            var invitedMembers = invitedMembersUsers.Select(invitedMember => invitedMember.UserId).ToList();
             if (myUserId != creatorId && !invitedMembers.Contains(myUserId))
             {
-                return false;
+                return null;
+            }
+            else {
+                Console.WriteLine("Dosao ovde" + invitedMembersUsers.Count);
+                if (myUserId != creatorId) devicesToSendNotification = devicesToSendNotification.Concat(foundItinerary.User.DeviceIds.Split(";").ToList()).ToList();
+                foreach (var invitedMemberUser in invitedMembersUsers) {
+                    if (invitedMemberUser.User.Id != myUserId) {
+                        devicesToSendNotification = devicesToSendNotification.Concat(invitedMemberUser.User.DeviceIds.Split(";").Where(id => id.Length > 0).ToList()).ToList();
+                        Console.WriteLine("KOMENTARIIII" + invitedMemberUser.User.DeviceIds);
+                    }
+                }
             }
             await _context.Comments.AddAsync(new Comment{
                 CommentText = comment,
@@ -94,12 +108,13 @@ namespace FlightSearch.Repositories
                 ItineraryId = itineraryId
             });
             await _context.SaveChangesAsync();
-            return true;
+            return devicesToSendNotification;
         }
 
         public async Task<List<OutTripDTO>> GetTrips(string myUserId)
         {
             var myTrips = await _context.Itinenaries
+                .Include(itinerary => itinerary.Comments).ThenInclude(comment => comment.User)
                 .Include(itinerary => itinerary.User).ThenInclude(user => user.Country)
                 .Include(itinerary => itinerary.Segments)
                 .Include(itinerary => itinerary.InvitedMembers).ThenInclude(invitedMember => invitedMember.User).ThenInclude(user => user.Country)
@@ -108,6 +123,9 @@ namespace FlightSearch.Repositories
             var myInvitedTrips = await _context.ItineraryMembers
                 .Where(itineraryMember => itineraryMember.UserId == myUserId)
                 .Include(itineraryMember => itineraryMember.Itinerary)
+                .ThenInclude(itinerary => itinerary.Comments)
+                .ThenInclude(comment => comment.User)
+                .Include(itineraryMember => itineraryMember.Itinerary)
                 .ThenInclude(itinerary => itinerary.User).ThenInclude(user => user.Country)
                 .Include(itineraryMember => itineraryMember.Itinerary)
                 .ThenInclude(itinerary => itinerary.Segments)
@@ -115,7 +133,7 @@ namespace FlightSearch.Repositories
                 .ThenInclude(itinerary => itinerary.InvitedMembers).ThenInclude(invitedMember => invitedMember.User).ThenInclude(user => user.Country)
                 .Where(itinerary => itinerary.UserId == myUserId)
                 .Select(itineraryMember => itineraryMember.Itinerary.ToOutTripFromDbTrip(false)).ToListAsync();
-            return myTrips.Concat(myInvitedTrips).ToList();
+            return myTrips.Concat(myInvitedTrips).OrderBy(trip => trip.ToSegments[0].Departure).ToList();
         }
     }
 }

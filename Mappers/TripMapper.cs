@@ -37,9 +37,19 @@ namespace FlightSearch.Mappers
                 LayoverFromDuration = itinerary.LayoverFromDuration.IsNullOrEmpty() ? new List<string>() : itinerary.LayoverFromDuration.Split(";").ToList().Take(itinerary.LayoverFromDuration.Split(";").ToList().Count() - 1).ToList(),
                 CityVisit = itinerary.CityVisit.IsNullOrEmpty() ? new List<string>() : itinerary.CityVisit.Split(";").ToList().Take(itinerary.CityVisit.Split(";").ToList().Count() - 1).ToList(),
                 TotalPrice = itinerary.TotalPrice,
+                CurrentPrice = itinerary.CurrentPrice,
                 ChatGPTGeneratedText = itinerary.ChatGPTGeneratedText,
                 InvitedMembers = invitedOutUserList,
+                Comments = itinerary.Comments.Select(comment => comment.ToOutCommentFromDbComment()).ToList(),
                 Creator = itinerary.User.DbUserToOutUser()
+            };
+        }
+
+        public static OutCommentDTO ToOutCommentFromDbComment(this Comment comment) {
+            return new OutCommentDTO{
+                CommentText = comment.CommentText,
+                DateCreated = comment.DateCreated,
+                User = comment.User.DbUserToOutUserWithoutRequests()
             };
         }
     }

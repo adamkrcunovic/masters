@@ -16,8 +16,10 @@ namespace FlightSearch.DTOs.OutModels
         public List<string> LayoverFromDuration { get; set; } = new List<string>();
         public List<string> CityVisit { get; set; } = new List<string>();
         public Double TotalPrice { get; set; }
+        public Double CurrentPrice { get; set; }
         public string? ChatGPTGeneratedText { get; set; }
         public List<OutUserDTO> InvitedMembers { get; set; } = new List<OutUserDTO>();
+        public List<OutCommentDTO> Comments { get; set; } = new List<OutCommentDTO>();
         public OutUserDTO Creator { get; set; } = new OutUserDTO();
     }
 }

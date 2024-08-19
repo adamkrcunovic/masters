@@ -17,6 +17,7 @@ namespace FlightSearch.Database.Models
         public string? FromDuration { get; set; }
         public string? LayoverFromDuration { get; set; } //separated by ;
         public Double TotalPrice { get; set; }
+        public Double CurrentPrice { get; set; }
         public string? ChatGPTGeneratedText { get; set; }
         public PriceChangeNotificationType PriceChangeNotificationType { get; set; }
         public int? Percentage { get; set; }
@@ -24,5 +25,6 @@ namespace FlightSearch.Database.Models
         public string? UserId { get; set; } //creator
         public User? User { get; set; }
         public List<ItineraryMember>? InvitedMembers { get; set; } //invited people
+        public List<Comment> Comments { get; set; } = new List<Comment>();
     }
 }

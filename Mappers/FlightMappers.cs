@@ -316,6 +316,7 @@ namespace FlightSearch.Mappers
                 FromDuration = inItineraryDTO.OutFlightDealDTO.FromDuration,
                 LayoverFromDuration = ListHelper.ListToString(inItineraryDTO.OutFlightDealDTO.LayoverFromDuration),
                 TotalPrice = inItineraryDTO.OutFlightDealDTO.TotalPrice,
+                CurrentPrice = inItineraryDTO.OutFlightDealDTO.TotalPrice,
                 ChatGPTGeneratedText = inItineraryDTO.ChatGPTGeneratedText,
                 PriceChangeNotificationType = inItineraryDTO.PriceChangeNotificationType,
                 Percentage = inItineraryDTO.Percentage,

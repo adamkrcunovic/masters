@@ -7,8 +7,8 @@ namespace FlightSearch.Interfaces
     {
         public Task<string> GetChatGPTData(string inputText);
         Task<Itinerary> SaveItinerary(Itinerary itinerary);
-        Task<bool> InviteUserToTrip(int itineraryId, string myUserId, string user);
-        Task<bool> AddComment(int itineraryId, string myUserId, string comment);
+        Task<List<String>?> InviteUserToTrip(int itineraryId, string myUserId, string user);
+        Task<List<String>?> AddComment(int itineraryId, string myUserId, string comment);
         Task<List<OutTripDTO>> GetTrips(string myUserId);
     }
 }

@@ -41,10 +41,10 @@ namespace FlightSearch.Controllers
         public async Task<IActionResult> InviteUserToTrip([FromRoute] int itineraryId, [FromRoute] string user)
         {
             var userId = await TokenHelper.GetUserIdFromHttpContext(HttpContext);
-            var userAdded = await _tripRepository.InviteUserToTrip(itineraryId, userId, user);
-            if (userAdded)
+            var commentAddedUserDevices = await _tripRepository.InviteUserToTrip(itineraryId, userId, user);
+            if (commentAddedUserDevices != null)
             {
-                return Ok();
+                return Ok(commentAddedUserDevices);
             }
             else
             {
@@ -57,10 +57,10 @@ namespace FlightSearch.Controllers
         public async Task<IActionResult> AddComment([FromRoute] int itineraryId, [FromRoute] string comment)
         {
             var userId = await TokenHelper.GetUserIdFromHttpContext(HttpContext);
-            var commentAdded = await _tripRepository.AddComment(itineraryId, userId, comment);
-            if (commentAdded)
+            var commentAddedUserDevices = await _tripRepository.AddComment(itineraryId, userId, comment);
+            if (commentAddedUserDevices != null)
             {
-                return Ok();
+                return Ok(commentAddedUserDevices);
             }
             else
             {
