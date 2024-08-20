@@ -1,4 +1,5 @@
 using FlightSearch.DTOs.InModels;
+using FlightSearch.DTOs.OutModels;
 using FlightSearch.Helpers;
 using FlightSearch.Interfaces;
 using FlightSearch.Mappers;
@@ -23,7 +24,9 @@ namespace FlightSearch.Controllers
         {
             var chatGPTText = TripMapper.TripToChatGPTText(inTripDTO);
             var generatedTripText = await _tripRepository.GetChatGPTData(chatGPTText);
-            return Ok(generatedTripText);
+            return Ok(new OutGenerateTripDTO() {
+                GeneratedTrip = generatedTripText
+            });
         }
 
         [HttpPost("saveItinerary")]
