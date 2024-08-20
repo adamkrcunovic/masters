@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Web;
 using FlightSearch.Constants;
 using FlightSearch.Database;
+using FlightSearch.Database.Models;
 using FlightSearch.DTOs.InModels;
 using FlightSearch.DTOs.OutModels;
 using FlightSearch.DTOs.ThirdPartyModels.InModels;
@@ -45,7 +46,7 @@ namespace FlightSearch.Service
                     .Include(itinerary => itinerary.Segments)
                     .Include(itinerary => itinerary.InvitedMembers)
                     .ThenInclude(invitedMember => invitedMember.User)
-                    .Where(itinerary => itinerary.PriceChangeNotificationType != Enums.PriceChangeNotificationType.NotSet).ToListAsync();
+                    .ToListAsync();
                 itinerariesToCheck = itinerariesToCheck.Where(itineraryToCheck => itineraryToCheck.Segments[0].Departure > DateTime.Now).ToList();
 
                 var listOfFlightSearches = new List<InFlightSearchDTO>();
@@ -156,6 +157,9 @@ namespace FlightSearch.Service
                                         {
                                             //Console.WriteLine(JsonSerializer.Serialize(possibility.Itineraries[0].Segments));
                                             currentPrice = Double.Parse(possibility.Price.GrandTotal);
+
+                                            userItinerary.CurrentPrice = currentPrice;
+                                            await _context.SaveChangesAsync();
                                         }
                                     }
                                 }
@@ -169,6 +173,9 @@ namespace FlightSearch.Service
                                             //Console.WriteLine(JsonSerializer.Serialize(possibility.Itineraries[0].Segments));
                                             //(JsonSerializer.Serialize(possibility.Itineraries[1].Segments));
                                             currentPrice = Double.Parse(possibility.Price.GrandTotal);
+
+                                            userItinerary.CurrentPrice = currentPrice;
+                                            await _context.SaveChangesAsync();
                                         }
                                     }
                                 }
@@ -208,6 +215,9 @@ namespace FlightSearch.Service
                                     if (price2 > 0)
                                     {
                                         currentPrice = price1 + price2;
+
+                                        userItinerary.CurrentPrice = currentPrice;
+                                        await _context.SaveChangesAsync();
                                     }
                                 }
                             }
@@ -219,28 +229,14 @@ namespace FlightSearch.Service
                         {
                             if (Math.Abs(priceDiferenceAmount) > userItinerary.Amount)
                             {
-                                if (priceDiferenceAmount > 0)
-                                {
-                                    // PRICE DROP BY AMOUNT
-                                }
-                                else
-                                {
-                                    // PRICE GROW BY AMOUNT
-                                }
+                                await SendNotificationForItinerary(userItinerary, true, priceDiferenceAmount);
                             }
                         }
                         if (userItinerary.PriceChangeNotificationType == Enums.PriceChangeNotificationType.Percentage)
                         {
                             if (priceDiferencePercent > (userItinerary.Percentage / 100))
                             {
-                                if (priceDiferenceAmount > 0)
-                                {
-                                    // PRICE DROP BY PERCENT
-                                }
-                                else
-                                {
-                                    // PRICE GROW BY PERCENT
-                                }
+                                await SendNotificationForItinerary(userItinerary, false, priceDiferencePercent);
                             }
                         }
                     }
@@ -341,22 +337,31 @@ namespace FlightSearch.Service
             return accessToken;
         }
 
-        public async Task<string> SendNotification(string title, string body) {
+        public async Task SendNotification(string title, string body, string deviceId) {
             var bearerToken = GetBearerToken();
             using var request = new HttpRequestMessage(HttpMethod.Post, ApplicationConstants.GoogleCloudMessagingApiAddress);
             var bodyJson = "{\n"+
                 " \"message\": {\n" +
-                " \"token\": \"" + bearerToken + "\",\n" +
+                " \"token\": \"" + deviceId + "\",\n" +
                 " \"notification\": {\n" +
                 " \"title\": \"" + title + "\",\n" +
                 " \"body\": \"" + body + "\"\n" + 
                 "}\n" +
                 "}\n" +
                 "}\n";
-            request.Content = new StringContent(body, Encoding.UTF8, "application/json");
+            request.Content = new StringContent(bodyJson, Encoding.UTF8, "application/json");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
-            var response = await _httpClient.SendAsync(request);
-            return "Ok";
+            await _httpClient.SendAsync(request);
+        }
+
+        public async Task SendNotificationForItinerary(Itinerary itinerary, Boolean amountOrPercentage, double value) {
+            var devices = itinerary.User.DeviceIds.Split(";").Where(deviceId => !deviceId.IsNullOrEmpty()).ToList();
+            foreach(var invitedMemer in itinerary.InvitedMembers) {
+                devices = devices.Concat(invitedMemer.User.DeviceIds.Split(";").Where(deviceId => !deviceId.IsNullOrEmpty()).ToList()).ToList();
+            }
+            foreach(var deviceId in devices) {
+                await SendNotification("Flight tickets price alert", "The price has gone " + (value > 0 ? "up" : "down") + " for " + Math.Abs(value).ToString() + (amountOrPercentage ? "euros" : "%"), deviceId);
+            }
         }
     }
 }
