@@ -15,5 +15,6 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.7"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7"/>
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0"/>
+    <PackageReference Include="Google.Apis.Auth" Version="1.60.0"/>
   </ItemGroup>
 </Project>

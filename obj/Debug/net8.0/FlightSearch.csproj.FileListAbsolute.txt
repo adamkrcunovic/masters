@@ -117,3 +117,7 @@
 /Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
 /Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Newtonsoft.Json.dll
 /Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Newtonsoft.Json.Bson.dll
+/Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Google.Apis.dll
+/Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Google.Apis.Auth.PlatformServices.dll
+/Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Google.Apis.Auth.dll
+/Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/bin/Debug/net8.0/Google.Apis.Core.dll

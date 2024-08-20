@@ -1,9 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "vX2guYnt8NE=",
+  "dgSpecHash": "J79Uwoh46oA=",
   "success": true,
   "projectFilePath": "/Users/adamkrcunovic/VisualStudioCodeProjects/FlightSearch/FlightSearch.csproj",
   "expectedPackageFiles": [
+    "/Users/adamkrcunovic/.nuget/packages/google.apis/1.60.0/google.apis.1.60.0.nupkg.sha512",
+    "/Users/adamkrcunovic/.nuget/packages/google.apis.auth/1.60.0/google.apis.auth.1.60.0.nupkg.sha512",
+    "/Users/adamkrcunovic/.nuget/packages/google.apis.core/1.60.0/google.apis.core.1.60.0.nupkg.sha512",
     "/Users/adamkrcunovic/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/Users/adamkrcunovic/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/8.0.0/microsoft.aspnetcore.authentication.jwtbearer.8.0.0.nupkg.sha512",
     "/Users/adamkrcunovic/.nuget/packages/microsoft.aspnetcore.cryptography.internal/8.0.0/microsoft.aspnetcore.cryptography.internal.8.0.0.nupkg.sha512",
