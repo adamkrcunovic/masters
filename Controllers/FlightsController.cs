@@ -40,6 +40,13 @@ namespace FlightSearch.Controllers
             return Ok(listOfDatePairs);
         }
 
+        [HttpGet("getAirsports/{searchTerm}")]
+        public async Task<IActionResult> getAirports([FromRoute] string searchTerm)
+        {
+            var airports =  await _flightRepository.GetAirports(searchTerm);
+            return Ok(airports);
+        }
+
         [HttpPatch("search")]
         public async Task<IActionResult> SearchFlights([FromBody] InFlightSearchDTO inFlightSearchDTO)
         {

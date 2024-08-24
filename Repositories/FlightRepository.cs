@@ -110,5 +110,29 @@ namespace FlightSearch.Repositories
             }
             return token;
         }
+
+        public async Task<List<OutAirportDTO>> GetAirports(string searchTerm)
+        {
+            var token = _memoryCache.Get<OutAmadeusTokenDTO>(ApplicationConstants.TokenCacheString);
+            if (token == null)
+            {
+                token = await AmadeusAuthorization();
+                await Task.Delay(500);
+            }
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            using var request = new HttpRequestMessage(HttpMethod.Get, ApplicationConstants.AirporstAmadeusApiAddress + searchTerm);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token?.AccessToken);
+            var response = await _httpClient.SendAsync(request);
+            var responseString = await response.Content.ReadAsStringAsync();
+            var returnModel = JsonSerializer.Deserialize<OutAmadeusAirportSearchDTO>(responseString, new JsonSerializerOptions()
+            {
+                PropertyNameCaseInsensitive = true
+            });
+            foreach (var airport in returnModel.Data)
+            {
+                airport.SetNameWithCountry();
+            }
+            return returnModel.Data.Select(amadeusAirport => FlightMapper.AmadeusAirportToOutAirport(amadeusAirport)).ToList();
+        }
     }
 }

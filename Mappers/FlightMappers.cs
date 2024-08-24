@@ -326,5 +326,12 @@ namespace FlightSearch.Mappers
             return itinerary;
         }
 
+        public static OutAirportDTO AmadeusAirportToOutAirport(this OutAmadeusAirportDTO amadeusAirport) {
+            return new OutAirportDTO() {
+                Name = amadeusAirport.Name,
+                IataCode = amadeusAirport.IataCode
+            };
+        }
+        
     }
 }
